@@ -1,29 +1,29 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
+
 import './App.css';
 
 import withAuthentication from './auth/withAuthentication';
 import StravaApi from './StravaApi';
 
+import FilterBar from './components/FilterBar';
+import SegmentsTable from './components/SegmentsTable';
+
 class App extends Component {
 
-  componentWillMount() {
-    const { athlete } = this.props;
+  state = {
+    segments: []
+  };
 
-    StravaApi.getStarredSegments()
-      .then((data) => console.log(data));
+  async handleFilter() {
+    const segments = await StravaApi.getStarredSegments();
+    this.setState({ segments });
   }
 
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
+      <div>
+        <FilterBar onFilter={(f) => this.handleFilter(f)} />
+        <SegmentsTable segments={this.state.segments} />
       </div>
     );
   }
