@@ -4,7 +4,7 @@ export default ({ segments }) => {
 
     function renderRow(row) {
         return (
-            <tr>
+            <tr key={row.id}>
                 <td>{row.name}</td>
                 <td>{row.distance}</td>
             </tr>
@@ -14,8 +14,10 @@ export default ({ segments }) => {
     return (
         <table>
             <thead>
-                <th>Name</th>
-                <th>Distance</th>
+                <tr>
+                    <th>Name</th>
+                    <th>Distance</th>
+                </tr>
             </thead>
             <tbody>
                 {segments.map(renderRow)}

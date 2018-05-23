@@ -7,6 +7,7 @@ import StravaApi from './StravaApi';
 
 import FilterBar from './components/FilterBar';
 import SegmentsTable from './components/SegmentsTable';
+import Map from './components/Map';
 
 class App extends Component {
 
@@ -23,6 +24,9 @@ class App extends Component {
     return (
       <div>
         <FilterBar onFilter={(f) => this.handleFilter(f)} />
+        <div>
+          <Map />
+        </div>
         <SegmentsTable segments={this.state.segments} />
       </div>
     );
