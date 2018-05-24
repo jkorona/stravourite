@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import GeoUtils from './GeoUtils';
+
 export class Area extends React.Component {
 
   componentDidMount() {
@@ -9,7 +11,8 @@ export class Area extends React.Component {
 
   componentDidUpdate(prevProps) {
     if (
-      this.props.map !== prevProps.map
+      this.props.map !== prevProps.map ||
+      !GeoUtils.boundsAreEqual(prevProps.bounds, this.props.bounds)
     ) {
       if (this.area) {
         this.area.setMap(null);
@@ -28,50 +31,17 @@ export class Area extends React.Component {
     const {
       map,
       google,
-      paths,
       strokeColor,
       strokeOpacity,
       strokeWeight,
       fillColor,
       fillOpacity,
-      ...props
+      bounds
     } = this.props;
 
     if (!google || !map) {
       return null;
     }
-
-    const params = {
-      map,
-      paths,
-      strokeColor,
-      strokeOpacity,
-      strokeWeight,
-      fillColor,
-      fillOpacity,
-      ...props
-    };
-
-    const center = map.getCenter();
-
-    const bottomRight = google.maps.geometry.spherical.computeOffset(
-      center,
-      5000,
-      -45
-    );
-
-    const topLeft = google.maps.geometry.spherical.computeOffset(
-      center,
-      5000,
-      135
-    );
-
-    const bounds = {
-      north: topLeft.lat(),
-      south: bottomRight.lat(),
-      west: bottomRight.lng(),
-      east: topLeft.lng()
-    };
 
     this.area = new google.maps.Rectangle({
       strokeColor: '#FF0000',
@@ -79,9 +49,10 @@ export class Area extends React.Component {
       strokeWeight: 2,
       fillColor: '#FF0000',
       fillOpacity: 0.35,
-      map: map,
+      map,
       bounds,
-      editable: true
+      editable: true,
+      draggable: true
     });
   }
 

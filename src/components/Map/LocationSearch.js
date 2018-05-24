@@ -30,13 +30,15 @@ class LocationSearch extends Component {
 
       if (!place.geometry) return;
 
-      if (place.geometry.viewport) map.fitBounds(place.geometry.viewport);
-      else {
+      if (place.geometry.viewport) {
+        map.fitBounds(place.geometry.viewport);
+      } else {
         map.setCenter(place.geometry.location);
         map.setZoom(17);
       }
 
-      this.setState({ position: place.geometry.location });
+      this.setState({ position: place.geometry.location });      
+      this.props.onPlaceChanged(place.geometry.viewport.getCenter())
     });
   }
 
@@ -44,7 +46,7 @@ class LocationSearch extends Component {
     const { position } = this.state;
 
     return (
-      <form onSubmit={this.onSubmit}>
+      <form onSubmit={this.onSubmit} style={{ position: 'absolute', top: 0, left: 0 }}>
         <input
           placeholder="Enter a location"
           ref={ref => (this.autocomplete = ref)}

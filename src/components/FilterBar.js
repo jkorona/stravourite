@@ -1,5 +1,7 @@
 import React from 'react';
 
+import Map from './Map';
+
 export default (props) => {
 
     const runFilter = () => {
@@ -8,6 +10,7 @@ export default (props) => {
 
     return (
         <div>
+            <Map />
             <button onClick={runFilter}>Filter</button>
         </div>
     );
