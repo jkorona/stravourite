@@ -5,13 +5,17 @@ import GeoUtils from './GeoUtils';
 
 import LocationSearch from './LocationSearch';
 import Area from './Area';
+import Slider from './Slider';
 
 const styles = { width: '400px', height: '400px', position: 'static' };
 const containerStyles = { paddingTop: '21px', position: 'static' };
 
+const KM = 1000;
+
 export class MapContainer extends Component {
 
     state = {
+        distance: 40,
         selectedBounds: null,
         initialized: false,
         center: null
@@ -28,24 +32,40 @@ export class MapContainer extends Component {
         }
 
         GeoUtils.findCurrentPosition()
-            .then(accumulate(newState, 'center', GeoUtils.calculateBounds, 40000, this.props.google))
+            .then(accumulate(newState, 'center', GeoUtils.calculateBounds, this.distance, this.props.google))
             .then(accumulate(newState, 'selectedBounds'))
             .then(() => {
                 this.setState({ initialized: true, ...newState })
             });
     }
 
-    handlePlaceChange = (position) => {
-        const newPosition = {
-            lat: position.lat(),
-            lng: position.lng()
+    get distance() {
+        return this.state.distance * KM;
+    }
+
+    handlePlaceChange = (value) => {
+        const position = {
+            lat: value.lat(),
+            lng: value.lng()
         };
         const newBounds = GeoUtils.calculateBounds(
-            newPosition,
-            40000,
+            position,
+            this.distance,
             this.props.google
         );
-        this.setState({ center: newPosition, selectedBounds: newBounds });
+        this.setState({ center: position, selectedBounds: newBounds });
+    }
+
+    handleDistanceChange = (value) => {
+        
+        this.setState({ distance: value }, () => {
+            const bounds = GeoUtils.calculateBounds(
+                this.state.center,
+                this.distance,
+                this.props.google
+            );
+            this.setState({ selectedBounds: bounds })
+        });
     }
 
     render() {
@@ -61,6 +81,7 @@ export class MapContainer extends Component {
             >
                 <LocationSearch onPlaceChanged={this.handlePlaceChange} />
                 <Area bounds={this.state.selectedBounds} />
+                <Slider value={this.state.distance} onChange={this.handleDistanceChange} />
             </Map>
         );
     }
