@@ -15,32 +15,28 @@ const KM = 1000;
 export class MapContainer extends Component {
 
     state = {
-        distance: 40,
-        selectedBounds: null,
+        distance: 40000,
+        bounds: null,
         initialized: false,
         center: null
     };
 
     componentWillMount() {
-        const newState = {};
-
-        function accumulate(store, propName, nextFn, ...params) {
-            return (value) => {
-                store[propName] = value;
-                return nextFn ? nextFn.call(this, value, ...params) : value;
-            };
-        }
-
         GeoUtils.findCurrentPosition()
-            .then(accumulate(newState, 'center', GeoUtils.calculateBounds, this.distance, this.props.google))
-            .then(accumulate(newState, 'selectedBounds'))
-            .then(() => {
-                this.setState({ initialized: true, ...newState })
+            .then((center) => {
+                this.updateBounds(center, this.state.distance);
+                this.setState({ center, initialized: true })
             });
     }
 
-    get distance() {
-        return this.state.distance * KM;
+    updateBounds = (center, distance) => {
+        const bounds = GeoUtils.calculateBounds(
+            center,
+            distance,
+            this.props.google
+        );
+        this.setState({ bounds });
+        this.props.onChange(bounds);
     }
 
     handlePlaceChange = (value) => {
@@ -48,24 +44,14 @@ export class MapContainer extends Component {
             lat: value.lat(),
             lng: value.lng()
         };
-        const newBounds = GeoUtils.calculateBounds(
-            position,
-            this.distance,
-            this.props.google
-        );
-        this.setState({ center: position, selectedBounds: newBounds });
+        this.setState({ center: position });
+        this.updateBounds(position, this.state.distance);
     }
 
     handleDistanceChange = (value) => {
-        
-        this.setState({ distance: value }, () => {
-            const bounds = GeoUtils.calculateBounds(
-                this.state.center,
-                this.distance,
-                this.props.google
-            );
-            this.setState({ selectedBounds: bounds })
-        });
+        const distance = value * KM;
+        this.setState({ distance });
+        this.updateBounds(this.state.center, distance);
     }
 
     render() {
@@ -80,8 +66,8 @@ export class MapContainer extends Component {
                 zoom={9}
             >
                 <LocationSearch onPlaceChanged={this.handlePlaceChange} />
-                <Area bounds={this.state.selectedBounds} />
-                <Slider value={this.state.distance} onChange={this.handleDistanceChange} />
+                <Area bounds={this.state.bounds} />
+                <Slider value={this.state.distance / KM} onChange={this.handleDistanceChange} />
             </Map>
         );
     }

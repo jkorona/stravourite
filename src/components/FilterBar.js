@@ -1,17 +1,28 @@
-import React from 'react';
+import React, { Component } from 'react';
 
 import Map from './Map';
 
-export default (props) => {
+export default class FilterBar extends Component {
 
-    const runFilter = () => {
-        props.onFilter({});
+    state = {
+        bounds: []
     }
 
-    return (
-        <div>
-            <Map />
-            <button onClick={runFilter}>Filter</button>
-        </div>
-    );
-};
+    runFilter = () => {
+        this.props.onFilter(this.state);
+    }
+
+    onBoundsChange = (bounds) => {
+        this.setState({ bounds: Object.values(bounds) })
+    }
+
+    render() {
+        return (
+            <div>
+                <Map onChange={this.onBoundsChange} />
+                <button onClick={this.runFilter}>Filter</button>
+            </div >
+        );
+
+    }
+}
