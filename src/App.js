@@ -15,8 +15,7 @@ class App extends Component {
   };
 
   async handleFilter(filter) {
-    console.log(filter);
-    const segments = await StravaApi.getStarredSegments();
+    const segments = await StravaApi.searchSegments(filter);
     this.setState({ segments });
   }
 

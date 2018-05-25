@@ -1,3 +1,6 @@
+import QueryString from './utils/QueryString';
+
+
 const OAUTH_URL = 'https://www.strava.com/oauth/token';
 const API_URL = 'https://www.strava.com/api';
 const API_VERSION = '3';
@@ -43,9 +46,26 @@ class StravaApi {
     getStarredSegments() {
         return fetch(uri('segments/starred'), {
             headers: {
-              Authorization: this.authorizationHeader
+                Authorization: this.authorizationHeader
             }
-          }).then(json)
+        }).then(json);
+    }
+
+    searchSegments(filter) {
+        const params = {
+            bounds: filter.bounds,
+            activity_type: 'riding',
+            min_cat: 0,
+            max_cat: 5
+        }
+        const url = uri('segments/explore?') + QueryString.serialize(params);
+        return fetch(url, {
+            headers: {
+                Authorization: this.authorizationHeader
+            }
+        })
+            .then(json)
+            .then(({ segments }) => segments);
     }
 
 }
